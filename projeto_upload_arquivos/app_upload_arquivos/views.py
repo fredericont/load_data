@@ -20,16 +20,13 @@ def login_view(request):
                             password=senha)
         if user is not None:
             login(request, user)
-            return redirect('/anexo')    
+            return render(request, 'anexo/anexo.html', { 'user': user })    
         else:
             return render(request, 'login/login.html')
 
 def logout_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    else:
-        logout(request)
-        return render(request, 'login.html')
+    logout(request)
+    return redirect('/')
 
 def cadastro(request):
     if request.method == 'POST':
@@ -41,6 +38,6 @@ def cadastro(request):
 
     return render(request, 'cadastro/cadastro.html')
 
-
+@login_required
 def anexo(request):
     return render(request, 'anexo/anexo.html')
