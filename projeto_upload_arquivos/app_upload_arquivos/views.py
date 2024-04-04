@@ -2,26 +2,34 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import authenticate, login, logout
 
 
-def login(request):
-    context = {}
-    if request.method == 'POST':       
-        username = request.POST.get('usuario')
-        password = request.POST.get('senha')
+def login_view(request):
+    if request.user.is_authenticated:
+        return redirect('/anexo')   
+    
+    if request.method == 'GET':
+        return render(request, 'login/login.html')
+    
+    elif request.method == 'POST':
+        nome = request.POST.get('usuario')
+        senha = request.POST.get('senha')
 
-        user = authenticate(request,username=username,password=password)
-
-        if user:
+        user = authenticate(username=nome,
+                            password=senha)
+        if user is not None:
             login(request, user)
-            return redirect('anexo')
+            return redirect('/anexo')    
         else:
-            #TODO fazer erro de credenciais
-            context['erro_login'] = True
+            return render(request, 'login/login.html')
 
-    return render(request, 'login/login.html')
-
+def logout_view(request):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    else:
+        logout(request)
+        return render(request, 'login.html')
 
 def cadastro(request):
     if request.method == 'POST':
